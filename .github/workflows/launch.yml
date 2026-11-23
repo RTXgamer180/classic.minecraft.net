@@ -1,9 +1,14 @@
-name: Launch Website
+
+name: Launch Minecraft Classic Website
 
 on:
+  schedule:
+    - cron: "*/5 * * * *"
+
   push:
     branches:
-      - 'a/b/c/coords/x/y/z/classic.minecraft.net'
+      - "a/b/c/coords/x/y/z/classic.minecraft.net"
+
   workflow_dispatch:
 
 permissions:
@@ -12,27 +17,26 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: minecraft-classic-pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  launch:
     runs-on: ubuntu-latest
-    steps:
-      - name: Check out website
-        uses: actions/checkout@v4
 
-      - name: Set up GitHub Pages
+    steps:
+      - name: Download website
+        uses: actions/checkout@v4
+        with:
+          ref: a/b/c/coords/x/y/z/classic.minecraft.net
+
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload website files
+      - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
 
-      - name: Deploy website
-        id: deployment
+      - name: Launch website
         uses: actions/deploy-pages@v4
