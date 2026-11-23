@@ -1,14 +1,10 @@
 
-name: Launch Minecraft Classic Website
+name: Launch Minecraft Classic
 
 on:
+  push:
   schedule:
     - cron: "*/5 * * * *"
-
-  push:
-    branches:
-      - "a/b/c/coords/x/y/z/classic.minecraft.net"
-
   workflow_dispatch:
 
 permissions:
@@ -17,7 +13,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: minecraft-classic-pages
+  group: minecraft-classic
   cancel-in-progress: true
 
 jobs:
@@ -25,18 +21,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download website
+      - name: Checkout website
         uses: actions/checkout@v4
-        with:
-          ref: a/b/c/coords/x/y/z/classic.minecraft.net
 
-      - name: Configure GitHub Pages
+      - name: Create website directory
+        run: |
+          DEST="dist/a/b/c/coords/x/y/z/Minecraft/classic.minecraft.net"
+          mkdir -p "$DEST"
+          git archive HEAD | tar -x -C "$DEST"
+          touch dist/.nojekyll
+
+      - name: Configure Pages
         uses: actions/configure-pages@v5
 
       - name: Upload website
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
 
-      - name: Launch website
+      - name: Deploy website
         uses: actions/deploy-pages@v4
